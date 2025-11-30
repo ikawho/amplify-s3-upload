@@ -1,0 +1,15 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Test event name --- localTets
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+{
+  "httpMethod": "POST",
+  "requestContext": {
+    "authorizer": {
+      "claims": {
+        "sub": "dummy-user-id-123"
+      }
+    }
+  },
+  "body": "{\"filename\":\"test.txt\",\"contentType\":\"text/plain\"}"
+}
