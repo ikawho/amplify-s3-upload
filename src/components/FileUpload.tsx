@@ -4,7 +4,7 @@ import { fetchAuthSession } from "aws-amplify/auth";
 
 // HIER deine echte API-URL eintragen:
 const API_BASE_URL =
-  "https://oyqeqcxjq9.execute-api.eu-west-1.amazonaws.com/prod";
+  "https://dlt2tmophj.execute-api.us-east-2.amazonaws.com/prod";
 
 export function FileUpload() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -105,3 +105,4 @@ export function FileUpload() {
     </>
   );
 }
+
