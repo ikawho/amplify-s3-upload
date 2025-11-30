@@ -1,0 +1,88 @@
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Name    --- generateUploadUrl
+// File    --- index.mjs
+// Runtime --- Node.js 20.x / 22.x / 24.x
+// Handler --- index.handler
+// Configuration -> Environment variables -> Key: "BUCKET_NAME" , Value: name of input bucket
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+// SDK v3
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+const s3 = new S3Client({}); // Client nutzt automatisch AWS_REGION der Lambda-Funktion
+const BUCKET_NAME = process.env.BUCKET_NAME; // Bucketname aus Umgebungsvariable
+// CORS-Header für Browser-Zugriff
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "Content-Type,Authorization",
+  "Access-Control-Allow-Methods": "OPTIONS,POST",
+};
+export const handler = async (event) => {
+  console.log("Incoming event:", JSON.stringify(event));
+  try {
+    // Preflight-Request
+    if (event.httpMethod === "OPTIONS") {
+      return {
+        statusCode: 200,
+        headers: corsHeaders,
+        body: "",
+      };
+    }
+    // User-Info aus Cognito-Authorizer
+    const claims = event.requestContext?.authorizer?.claims;
+    const userSub = claims?.sub;
+    if (!userSub) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({ error: "Unauthorized: user sub missing" }),
+      };
+    }
+    // Body auslesen
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { filename, contentType } = body;
+    if (!filename || !contentType) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          error: "filename and contentType required",
+        }),
+      };
+    }
+    const timestamp = Date.now(); // Sicheren Objekt-Key bauen
+    const cleanFilename = filename.replace(/[^\w.\-]/g, "_"); // Sicheren Objekt-Key bauen
+    const objectKey = `uploads/${userSub}/${timestamp}-${cleanFilename}`; // HIER wird objectKey ganz klar definiert
+    // PutObjectCommand für Presigned URL
+    const command = new PutObjectCommand({
+      Bucket: BUCKET_NAME,
+      Key: objectKey,
+      ContentType: contentType,
+    });
+    const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 60 });
+    return {
+      statusCode: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ uploadUrl, objectKey }),
+    };
+  } catch (err) {
+    console.error("Error creating presigned URL:", err);
+    return {
+      statusCode: 500,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        error: "Failed to create presigned URL",
+        message: err.message,
+        code: err.name,
+        // Stack nur fürs Debuggen, später entfernen
+        stack: err.stack,
+      }),
+    };
+  }
+};
