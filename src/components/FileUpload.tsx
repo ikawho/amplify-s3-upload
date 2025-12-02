@@ -8,7 +8,7 @@ const API_BASE_URL = "https://iqgbt1x74k.execute-api.eu-west-1.amazonaws.com/pro
 export function FileUpload() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [status, setStatus] = useState<string>(
-    "App successfully hosted. Try uploading a file instead of creating todos."
+    "App successfully hosted. Try uploading a file."
   );
   const [isUploading, setIsUploading] = useState(false);
 
@@ -104,5 +104,6 @@ export function FileUpload() {
     </>
   );
 }
+
 
 
