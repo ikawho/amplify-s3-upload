@@ -3,13 +3,12 @@ import { useRef, useState, ChangeEvent } from "react";
 import { fetchAuthSession } from "aws-amplify/auth";
 
 // HIER deine echte API-URL eintragen:
-const API_BASE_URL =
-  "https://oyqeqcxjq9.execute-api.eu-west-1.amazonaws.com/prod";
+const API_BASE_URL = "https://iqgbt1x74k.execute-api.eu-west-1.amazonaws.com/prod";
 
 export function FileUpload() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [status, setStatus] = useState<string>(
-    "App successfully hosted. Try uploading a file instead of creating todos."
+    "App successfully hosted. Try uploading a file."
   );
   const [isUploading, setIsUploading] = useState(false);
 
@@ -27,7 +26,7 @@ export function FileUpload() {
 
       // 1) Aktuelle Session + JWT holen
       const session = await fetchAuthSession();
-      const jwt = session.tokens?.idToken?.toString(); // oder accessToken, wenn du willst
+      const jwt = session.tokens?.idToken?.toString();
 
       if (!jwt) {
         setStatus("Fehler: Konnte keinen JWT über fetchAuthSession bekommen.");
@@ -35,7 +34,7 @@ export function FileUpload() {
         return;
       }
 
-      // 2) Presigned URL von deiner API holen
+      // 2) Presigned URL deiner API holen
       const res = await fetch(`${API_BASE_URL}/upload-url`, {
         method: "POST",
         headers: {
