@@ -1,22 +1,13 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { Amplify } from "aws-amplify";
-import { Authenticator } from "@aws-amplify/ui-react";
-import App from "./App";
+import { Authenticator } from '@aws-amplify/ui-react';
+import App from "./App.tsx";
 import "./index.css";
-import "@aws-amplify/ui-react/styles.css";
+import { Amplify } from "aws-amplify";
+import outputs from "../amplify_outputs.json";
+import '@aws-amplify/ui-react/styles.css';
 
-Amplify.configure({
-  Auth: {
-    Cognito: {
-      userPoolId: "amplifyAuthUserPool4BA7F805-1vRp01gYI5TJ",
-      userPoolClientId: "5h8l13cfskuikqveub99l6gj5",
-      loginWith: {
-        email: true,
-      },
-    },
-  },
-});
+Amplify.configure(outputs);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
@@ -25,4 +16,3 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </Authenticator>
   </React.StrictMode>
 );
-
